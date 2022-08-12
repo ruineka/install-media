@@ -79,7 +79,7 @@ EndSection" > ${MOUNT_PATH}/etc/X11/xorg.conf.d/10-nvidia-prime.conf
 fi
 
 export SHOW_UI=1
-frzr-deploy chimeraos/chimeraos:stable
+frzr-deploy ruineka/chimeraos:unstable
 RESULT=$?
 
 MSG="Installation failed."
