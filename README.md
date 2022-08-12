@@ -1,3 +1,5 @@
+#This is NOT THE OFFICIAL CHIMERAOS and is not intended to be used as a daily driver!
+
 # install-media
 Build the ChimeraOS installation media.
 
