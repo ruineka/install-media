@@ -16,7 +16,7 @@ CHOICE=$(whiptail --menu "How would you like to install ChimeraOS?" 18 50 10 \
   "testing" "Fetch the latest testing image." \
   "unofficial" "Custom ChimeraOS branches" \
    3>&1 1>&2 2>&3)
-echo $CHOICE
+
 if [ -z "${CHOICE}" ]; then
   echo "No option was chosen (user hit Cancel)"
 elif [ "${CHOICE}" != "local" ]; then
@@ -65,6 +65,29 @@ if [ -d ${SYS_CONN_DIR} ] && [ -n "$(ls -A ${SYS_CONN_DIR})" ]; then
     cp  ${SYS_CONN_DIR}/* \
         ${MOUNT_PATH}${SYS_CONN_DIR}/.
 fi
+
+# Let the user set what session they would like to use
+SESSION=$(whiptail --menu "Default session select" 18 50 10 \
+ "bigpicture" "Steam's Bigpicture mode" \
+ "gamepadui" "Steam Deck mode" \
+ "desktop" "Gnome desktop environment" \
+  3>&1 1>&2 2>&3)
+  
+LIGHTDM_CONFIG_DIR="/etc/lightdm/lightdm.conf.d"
+LIGHTDM_CONFIG="10-chimeraos-session.conf"
+mkdir -p -m=700 ${MOUNT_PATH}${LIGHTDM_CONFIG_DIR}
+
+if [ ${SESSION} == "bigpicture" ]; then
+  echo -e "[Seat:*]\nautologin-session=steamos" > ${MOUNT_PATH}/${LIGHTDM_CONFIG_DIR}/${LIGHTDM_CONFIG}
+fi
+  	
+if [ ${SESSION} == "gamepadui" ]; then
+  echo -e "[Seat:*]\nautologin-session=gamescope-session" > ${MOUNT_PATH}/${LIGHTDM_CONFIG_DIR}/${LIGHTDM_CONFIG}
+fi
+	
+if [ ${SESSION} == "desktop" ]; then
+  echo -e "[Seat:*]\nautologin-session=gnome" > ${MOUNT_PATH}/${LIGHTDM_CONFIG_DIR}/${LIGHTDM_CONFIG}
+fi	
 
 # Detect hybrid intel-nvidia setups
 NVIDIA_BUSID=$(lspci -nm -d 10de: | \
