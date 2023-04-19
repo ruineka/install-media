@@ -28,6 +28,7 @@ AUR_PACKAGES="\
     r8152-dkms \
     rtl8812au-dkms-git \
     rtl8814au-dkms-git \
+    rz608-fix-git \
 "
 
 # create repo directory if it doesn't exist yet
@@ -68,6 +69,10 @@ sha256sum ${ISO_FILE_NAME} > sha256sum.txt
 cat sha256sum.txt
 popd
 
-echo "::set-output name=iso_file_name::${ISO_FILE_NAME}"
-echo "::set-output name=version::${VERSION}"
-echo "::set-output name=id::${ID}"
+if [ -f "${GITHUB_OUTPUT}" ]; then
+	echo "iso_file_name=${ISO_FILE_NAME}" >> "${GITHUB_OUTPUT}"
+	echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+	echo "id=${ID}" >> "${GITHUB_OUTPUT}"
+else
+	echo "No github output file set"
+fi

@@ -1,12 +1,27 @@
 #! /bin/bash
 
-
 if [ $EUID -ne 0 ]; then
     echo "$(basename $0) must be run as root"
     exit 1
 fi
 
+dmesg --console-level 1
+
+if [ ! -d /sys/firmware/efi/efivars ]; then
+    MSG="Legacy BIOS installs are not supported. You must boot the installer in UEFI mode.\n\nWould you like to restart the computer now?"
+    if (whiptail --yesno "${MSG}" 10 50); then
+        reboot
+    fi
+
+    exit 1
+fi
+
+
 #### Test conenction or ask the user for configuration ####
+
+# Waiting a bit because some wifi chips are slow to scan 5GHZ networks
+sleep 2
+
 while ! ( curl -Ls https://github.com | grep '<html' > /dev/null ); do
     whiptail \
      "No internet connection detected.\n\nPlease use the network configuration tool to activate a network, then select \"Quit\" to exit the tool and continue the installation." \
@@ -38,49 +53,24 @@ if [ -d ${SYS_CONN_DIR} ] && [ -n "$(ls -A ${SYS_CONN_DIR})" ]; then
         ${MOUNT_PATH}${SYS_CONN_DIR}/.
 fi
 
-# Detect hybrid intel-nvidia setups
-NVIDIA_BUSID=$(lspci -nm -d 10de: | \
-    awk '{print $1 " " $2 " " $3}' | \
-    grep -e 300 -e 302 | \
-    awk '{print $1}' | \
-    sed 's/\./:/' )
-INTEL_BUSID=$(lspci -nm -d 8086: | \
-    awk '{print $1 " " $2 " " $3}' | \
-    grep -e 300 -e 302 | \
-    awk '{print $1}' | \
-    sed 's/\./:/' )
+export SHOW_UI=1
 
-if [[ $INTEL_BUSID == ??:??:? && $NVIDIA_BUSID == ??:??:? ]] ; then
-    if (whiptail --yesno "Intel/Nvidia hybrid graphics detected. Would you like to force use of Nvidia graphics?"); then
-        echo "
-Section \"ServerLayout\"
-    Identifier \"layout\"
-    Screen 0 \"iGPU\"
-    Option \"AllowNVIDIAGPUScreens\"
-EndSection
+if ( ls -1 /dev/disk/by-label | grep -q CHIMERA_UPDATE ); then
 
-Section \"Screen\"
-    Identifier \"iGPU\"
-    Device \"iGPU\"
-EndSection
-
-Section \"Device\"
-    Identifier \"iGPU\"
-    Driver \"modesetting\"
-    BusID \"${INTEL_BUSID}\"
-EndSection
-
-Section \"Device\"
-    Identifier \"dGPU\"
-    Driver \"nvidia\"
-    BusID \"${NVIDIA_BUSID}\"
-EndSection" > ${MOUNT_PATH}/etc/X11/xorg.conf.d/10-nvidia-prime.conf
-    fi
+CHOICE=$(whiptail --menu "How would you like to install ChimeraOS?" 18 50 10 \
+  "local" "Use local media for installation." \
+  "online" "Fetch the latest stable image." \
+   3>&1 1>&2 2>&3)
 fi
 
-export SHOW_UI=1
-frzr-deploy chimeraos/chimeraos:stable
-RESULT=$?
+if [ "${CHOICE}" == "local" ]; then
+    export local_install=true
+    frzr-deploy
+    RESULT=$?
+else
+    frzr-deploy chimeraos/chimeraos:stable
+    RESULT=$?
+fi
 
 MSG="Installation failed."
 if [ "${RESULT}" == "0" ]; then
@@ -89,7 +79,7 @@ elif [ "${RESULT}" == "29" ]; then
     MSG="GitHub API rate limit error encountered. Please retry installation later."
 fi
 
-if (whiptail --yesno "${MSG}\n\nWould you like to restart the computer?" 10 50); then
+if (whiptail --yesno "${MSG}\n\nWould you like to restart the computer now?" 10 50); then
     reboot
 fi
 

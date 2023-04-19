@@ -1,11 +1,20 @@
 name: Installer ISO build
-on: push
+on:
+  push:
+    branches:
+    - 'master'
 jobs:
   build:
     name: Installer ISO build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      iso_file_name: ${{ steps.build_iso.outputs.iso_file_name }}
+      version: ${{ steps.build_iso.outputs.version }}
+      id: ${{ steps.build_iso.outputs.id }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Change directory
         run: cd $GITHUB_WORKSPACE
       - name: Build ISO
@@ -13,29 +22,14 @@ jobs:
         run: ./build-iso-docker.sh
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.build_iso.outputs.version }}_${{ steps.build_iso.outputs.id }}
-          release_name: ${{ steps.build_iso.outputs.version }} (${{ steps.build_iso.outputs.id }})
+          name: ${{ steps.build_iso.outputs.version }} (${{ steps.build_iso.outputs.id }})
           draft: false
           prerelease: true
-      - name: Upload ISO
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/${{ steps.build_iso.outputs.iso_file_name }}
-          asset_name: ${{ steps.build_iso.outputs.iso_file_name }}
-          asset_content_type: application/x-cd-image
-      - name: Upload sha256sum
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/sha256sum.txt
-          asset_name: sha256sum.txt
-          asset_content_type: text/plain
+          fail_on_unmatched_files: true
+          files: |
+            output/${{ steps.build_iso.outputs.iso_file_name }}
+            output/sha256sum.txt
