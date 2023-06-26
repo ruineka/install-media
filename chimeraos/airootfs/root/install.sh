@@ -38,11 +38,6 @@ while ! ( curl -Ls https://github.com | grep '<html' > /dev/null ); do
 done
 #######################################
 
-if ! frzr-bootstrap gamer; then
-    whiptail --msgbox "System bootstrap step failed." 10 50
-    exit 1
-fi
-
 #### Post install steps for system configuration
 # Copy over all network configuration from the live session to the system
 MOUNT_PATH=/tmp/frzr_root
@@ -53,9 +48,35 @@ if [ -d ${SYS_CONN_DIR} ] && [ -n "$(ls -A ${SYS_CONN_DIR})" ]; then
         ${MOUNT_PATH}${SYS_CONN_DIR}/.
 fi
 
+if ! frzr-bootstrap gamer; then
+    whiptail --msgbox "System bootstrap step failed." 10 50
+    exit 1
+fi
+
+MENU_SELECT=$(whiptail --menu "Installer Options" 25 75 10 \
+  "Standard Install" "Install ChimeraOS with default options." \
+  "Advanced Install" "Install ChimeraOS with advanced options." \
+   3>&1 1>&2 2>&3)
+
+if [ "$MENU_SELECT" = "Advanced Install" ]; then
+OPTIONS=$(whiptail --separate-output --checklist "Choose options" 10 55 4 \
+  "Use Firmware Overrides" "DSDT/EDID" OFF 3>&1 1>&2 2>&3)
+
+    if [[ $OPTIONS == "Use Firmware Overrides" ]]; then
+       echo "Enabling firmware overrides..."
+       if [[ ! -d /tmp/frzr_root/etc/device-quirks/ ]]; then
+          mkdir -p /tmp/frzr_root/etc/device-quirks
+          echo -n '
+export USE_FIRMWARE_OVERRIDES=1
+export USB_WAKE_ENABLED=1
+' >> /tmp/frzr_root/etc/device-quirks/device-quirks.conf
+	fi
+    fi
+fi
+
 export SHOW_UI=1
 
-if ( ls -1 /dev/disk/by-label | grep -q CHIMERA_UPDATE ); then
+if ( ls -1 /dev/disk/by-label | grep -q FRZR_UPDATE ); then
 
 CHOICE=$(whiptail --menu "How would you like to install ChimeraOS?" 18 50 10 \
   "local" "Use local media for installation." \
