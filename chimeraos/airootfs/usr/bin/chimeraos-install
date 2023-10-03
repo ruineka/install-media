@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+# Script to start the installer session
+
+# Window managers sets this to wayland but apps using Gamescope must use x11
+export XDG_SESSION_TYPE=x11
+
+# Start client application
+gamescope -f -- /usr/bin/chimeraos-installer.x86_64 > /root/.gamescope-stdout.log 2>&1

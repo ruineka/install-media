@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 if [ $EUID -ne 0 ]; then
 	echo "$(basename $0) must be run as root"
 	exit 1
@@ -32,8 +32,8 @@ AUR_PACKAGES="\
 "
 
 ADDITIONAL_PACKAGES="\
-    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.6.13-chos1-1/linux-chimeraos-6.6.13.chos1-1-x86_64.pkg.tar.zst \
-    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.6.13-chos1-1/linux-chimeraos-headers-6.6.13.chos1-1-x86_64.pkg.tar.zst \
+    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.8.9-chos1-1/linux-chimeraos-6.8.9.chos1-1-x86_64.pkg.tar.zst \
+    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.8.9-chos1-1/linux-chimeraos-headers-6.8.9.chos1-1-x86_64.pkg.tar.zst \
 "
 
 # create repo directory if it doesn't exist yet

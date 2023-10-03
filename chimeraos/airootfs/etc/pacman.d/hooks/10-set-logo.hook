@@ -1,0 +1,14 @@
+# remove from airootfs!
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = *
+
+[Action]
+Description = Set ChimeraOS logo in plymouth
+When = PostTransaction
+Depends = plymouth
+Depends = sh
+Depends = coreutils
+Exec = /bin/sh -c "/usr/bin/cp /usr/share/chimeraos/chimeraos-text.png /usr/share/plymouth/themes/spinner/watermark.png"
