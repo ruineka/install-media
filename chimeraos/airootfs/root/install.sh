@@ -1,9 +1,4 @@
 #! /bin/bash
-# sync frzr to match https://github.com/neroreflex/frzr refactor
-git clone -b refactor https://github.com/neroreflex/frzr /root/frzr
-cp -r /root/frzr/* /usr/bin
-chmod +x /usr/bin/frzr*
-chmod +x /usr/bin/__frzr*
 
 clean_progress() {
         local scale=$1
@@ -61,6 +56,12 @@ while ! ( curl --http1.1 -Ls https://github.com | grep '<html' > /dev/null ); do
     nmtui-connect
 done
 #######################################
+
+# sync frzr to match https://github.com/neroreflex/frzr refactor
+git clone -b refactor https://github.com/neroreflex/frzr /root/frzr
+cp -r /root/frzr/* /usr/bin
+chmod +x /usr/bin/frzr*
+chmod +x /usr/bin/__frzr*
 
 MOUNT_PATH=/tmp/frzr_root
 
