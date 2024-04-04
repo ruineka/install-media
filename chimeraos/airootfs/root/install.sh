@@ -19,6 +19,12 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+if (whiptail --yesno --yes-button "Install System" --no-button "Exit Installer" "You are using a developer installer for an FRZR based system. Proceed?" 13 70); then
+        echo "User chose to continue"
+else
+        exit
+fi
+
 dmesg --console-level 1
 
 if [ ! -d /sys/firmware/efi/efivars ]; then
