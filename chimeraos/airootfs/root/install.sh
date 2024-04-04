@@ -1,4 +1,9 @@
 #! /bin/bash
+# sync frzr to match https://github.com/neroreflex/frzr refactor
+git clone -b refactor https://github.com/neroreflex/frzr /root/frzr
+cp -r /root/frzr/* /usr/bin
+chmod +x /usr/bin/frzr*
+chmod +x /usr/bin/__frzr*
 
 clean_progress() {
         local scale=$1
@@ -59,7 +64,7 @@ done
 
 MOUNT_PATH=/tmp/frzr_root
 
-if ! frzr-bootstrap gamer; then
+if ! frzr bootstrap gamer; then
     whiptail --msgbox "System bootstrap step failed." 10 50
     exit 1
 fi
@@ -139,10 +144,10 @@ fi
 
 if [ "${CHOICE}" == "local" ]; then
     export local_install=true
-    frzr-deploy
+    frzr deploy
     RESULT=$?
 else
-    frzr-deploy chimeraos/chimeraos:${TARGET}
+    frzr deploy chimeraos/chimeraos:${TARGET}
     RESULT=$?
 fi
 
