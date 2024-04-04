@@ -58,8 +58,16 @@ done
 #######################################
 
 # sync frzr to match https://github.com/neroreflex/frzr refactor
-git clone -b refactor https://github.com/neroreflex/frzr /root/frzr
-cp -r /root/frzr/* /usr/bin
+
+if [ ! -d /root/frzr ]; then
+        git clone -b refactor https://github.com/neroreflex/frzr /root/frzr
+else
+        cd /root/frzr
+        git pull
+        cd /root
+fi
+cp -r /root/frzr/frzr* /usr/bin
+cp -r /root/frzr/__frzr* /usr/bin
 chmod +x /usr/bin/frzr*
 chmod +x /usr/bin/__frzr*
 
