@@ -72,7 +72,7 @@ else
         git pull
         cd /root
 fi
-cp -r /root/frzr/frzr* /usr/bin
+cp -r /root/frzr/frzr-* /usr/bin
 cp -r /root/frzr/__frzr* /usr/bin
 chmod +x /usr/bin/frzr*
 chmod +x /usr/bin/__frzr*
