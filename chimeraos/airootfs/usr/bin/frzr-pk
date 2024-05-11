@@ -1,0 +1,21 @@
+set -eu
+
+if [[ $EUID -ne 0 ]]; then
+	exec pkexec --disable-internal-agent "$0" "$@"
+fi
+
+FRZR_CMD=$1
+
+case $1 in
+  deploy | unlock | kernel | set-channel | get-channel | version | build-initramfs | configure-tweaks | bootstrap)
+    echo "Executing $FRZR_CMD"
+    /usr/bin/frzr "${FRZR_CMD}"
+    ;;
+  *)
+    echo "Not a valid FRZR command: $1"
+    ;;
+esac
+
+
+
+
