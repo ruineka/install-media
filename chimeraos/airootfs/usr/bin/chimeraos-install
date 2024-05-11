@@ -6,6 +6,19 @@ set -e
 
 # Window managers sets this to wayland but apps using Gamescope must use x11
 export XDG_SESSION_TYPE=x11
-
+# Temporary clone to update frzr on boot
+if [ ! -d /root/frzr ]; then
+        git clone -b refactor https://github.com/neroreflex/frzr /root/frzr
+else
+        cd /root/frzr
+        git pull
+        cd /root
+fi
+cp /root/frzr/frzr /usr/bin/
+cp -r /root/frzr/frzr-* /usr/bin
+cp -r /root/frzr/__frzr* /usr/bin
+chmod +x /usr/bin/frzr
+chmod +x /usr/bin/frzr-*
+chmod +x /usr/bin/__frzr*
 # Start client application
 gamescope -f -- /usr/bin/chimeraos-installer.x86_64 > /root/.gamescope-stdout.log 2>&1
